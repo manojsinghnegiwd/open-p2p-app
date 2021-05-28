@@ -1,3 +1,7 @@
 const { PeerServer } = require('peer');
 
-const peerServer = PeerServer({ port: 9000, path: '/peer' })
+module.exports = {
+    startPeerServer: () => {
+        const peerServer = PeerServer({ port: 9000, path: '/' })
+    }
+}

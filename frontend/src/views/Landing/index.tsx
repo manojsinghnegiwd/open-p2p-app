@@ -1,7 +1,8 @@
+import Peer from "peerjs";
 import React from "react";
 
 interface LandingProps {
-  currentUserId: string;
+  currentUserId: string
 }
 
 const Landing: React.FC<LandingProps> = ({ currentUserId }) => {
@@ -12,12 +13,7 @@ const Landing: React.FC<LandingProps> = ({ currentUserId }) => {
           <p className="mb-5">
             <strong>Hey There !!! Your User ID is {currentUserId}</strong>
           </p>
-          <div className="field">
-              <p className="control">
-                  <input className="input" type="text" placeholder="Remote User ID" />
-              </p>
-          </div>
-          <button className="button is-success is-fullwidth">Join</button>
+          <button className="button is-success is-fullwidth">Create a room</button>
         </div>
       </div>
     </div>
