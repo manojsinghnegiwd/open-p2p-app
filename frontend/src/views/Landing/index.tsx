@@ -3,9 +3,10 @@ import React from "react";
 
 interface LandingProps {
   currentUserId: string
+  onCreateRoom: () => void
 }
 
-const Landing: React.FC<LandingProps> = ({ currentUserId }) => {
+const Landing: React.FC<LandingProps> = ({ currentUserId, onCreateRoom }) => {
   return (
     <div className="container pt-5">
       <div className="columns">
@@ -13,7 +14,7 @@ const Landing: React.FC<LandingProps> = ({ currentUserId }) => {
           <p className="mb-5">
             <strong>Hey There !!! Your User ID is {currentUserId}</strong>
           </p>
-          <button className="button is-success is-fullwidth">Create a room</button>
+          <button onClick={onCreateRoom} className="button is-success is-fullwidth">Create a room</button>
         </div>
       </div>
     </div>

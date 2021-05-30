@@ -1,24 +1,34 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import Peer from 'peerjs';
-import './App.css';
 import { getUserMediaPromise } from '../../utils/media';
 import { RouteComponentProps } from 'react-router';
+import { fetchRoomAPI } from '../../api/room';
 
-interface RoomProps extends RouteComponentProps {
-  peerInstance: Peer
-  remoteUserId: string
+export interface RoomParams {
+  roomId: string
+}
+interface RoomProps extends RouteComponentProps<RoomParams> {
+  peerInstance: Peer | null
+  currentUserId: string
 }
 
 const Room: React.FC<RoomProps> = ({
   peerInstance,
-  remoteUserId,
+  currentUserId,
   match,
 }) => {
   const currentMediaStream = useRef<MediaStream | null>(null);
   const currentUserVideoRef = useRef<HTMLVideoElement>(null);
   const remoteUserVideoRef = useRef<HTMLVideoElement>(null);
 
+  const { params } = match;
+  const { roomId } = params;
+
   useEffect(() => {
+    if (!peerInstance) {
+      return;
+    }
+
     peerInstance.on('call', async (incomingCall: Peer.MediaConnection) => {
       if (!currentMediaStream.current) {
         return;
@@ -37,6 +47,12 @@ const Room: React.FC<RoomProps> = ({
     setCurrentUserVideo();
   }, [peerInstance])
 
+  useEffect(() => {
+    if (roomId) {
+      callEveryoneInTheRoom(roomId);
+    }
+  }, [roomId]);
+
   const setCurrentUserVideo = async () => {
     if (!currentUserVideoRef.current) {
       return;
@@ -47,14 +63,23 @@ const Room: React.FC<RoomProps> = ({
     currentUserVideoRef.current.play();
 
     currentMediaStream.current = mediaStream;
+  }
 
-    if (remoteUserId) {
-      // after setting the video call the other user
-      call();
+  const callEveryoneInTheRoom = async (roomId: string) => {
+    try {
+      const roomInformation = await fetchRoomAPI(roomId)
+
+      const { participants } = roomInformation;
+
+      if (participants.length) {
+        participants.forEach((participant: string) => call(participant))
+      }
+    } catch (error) {
+      console.error(error)
     }
   }
 
-  const call = useCallback(() => {
+  const call = useCallback((remoteUserId) => {
     if (!peerInstance || !currentMediaStream.current) {
       return;
     }
@@ -71,7 +96,6 @@ const Room: React.FC<RoomProps> = ({
 
   return (
     <div className="Room">
-      <button onClick={call}>Call</button>
       <div>
         <video ref={currentUserVideoRef} muted />
       </div>
