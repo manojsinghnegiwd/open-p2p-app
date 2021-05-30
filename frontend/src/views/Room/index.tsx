@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from 'react';
 import Peer from 'peerjs';
 import { getUserMediaPromise } from '../../utils/media';
 import { RouteComponentProps } from 'react-router';
-import { fetchRoomAPI } from '../../api/room';
+import { fetchRoomAPI, joinRoomAPI } from '../../api/room';
 
 export interface RoomParams {
   roomId: string
@@ -47,23 +47,24 @@ const Room: React.FC<RoomProps> = ({
     setCurrentUserVideo();
   }, [peerInstance])
 
-  useEffect(() => {
-    if (roomId) {
-      callEveryoneInTheRoom(roomId);
-    }
-  }, [roomId]);
-
-  const setCurrentUserVideo = async () => {
+  const setCurrentUserVideo = useCallback(async () => {
     if (!currentUserVideoRef.current) {
       return;
     }
 
-    const mediaStream = await getUserMediaPromise({ video: true, audio: true });
-    currentUserVideoRef.current.srcObject = mediaStream;
-    currentUserVideoRef.current.play();
+    try {
+      const mediaStream = await getUserMediaPromise({ video: true, audio: true });
+      currentUserVideoRef.current.srcObject = mediaStream;
+      currentUserVideoRef.current.play();
 
-    currentMediaStream.current = mediaStream;
-  }
+      currentMediaStream.current = mediaStream;
+
+      await joinRoomAPI(roomId, currentUserId)
+      await callEveryoneInTheRoom(roomId)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [roomId, currentUserId])
 
   const callEveryoneInTheRoom = async (roomId: string) => {
     try {

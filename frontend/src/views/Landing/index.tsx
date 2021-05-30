@@ -1,12 +1,23 @@
 import Peer from "peerjs";
-import React from "react";
+import React, { useCallback } from "react";
+import { RouteComponentProps } from "react-router";
+import { createRoomAPI } from "../../api/room";
 
-interface LandingProps {
+interface LandingProps extends RouteComponentProps {
   currentUserId: string
-  onCreateRoom: () => void
 }
 
-const Landing: React.FC<LandingProps> = ({ currentUserId, onCreateRoom }) => {
+const Landing: React.FC<LandingProps> = ({ currentUserId, history }) => {
+
+  const createRoom = useCallback(async () => {
+    try {
+      const roomInformation = await createRoomAPI(currentUserId)
+      history.push(`/rooms/${roomInformation.roomId}`)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [currentUserId]);
+
   return (
     <div className="container pt-5">
       <div className="columns">
@@ -14,7 +25,7 @@ const Landing: React.FC<LandingProps> = ({ currentUserId, onCreateRoom }) => {
           <p className="mb-5">
             <strong>Hey There !!! Your User ID is {currentUserId}</strong>
           </p>
-          <button onClick={onCreateRoom} className="button is-success is-fullwidth">Create a room</button>
+          <button onClick={createRoom} className="button is-success is-fullwidth">Create a room</button>
         </div>
       </div>
     </div>

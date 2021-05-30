@@ -36,25 +36,16 @@ function App() {
     })
   }, [])
 
-  const createRoom = useCallback(async () => {
-    try {
-      const roomInformation = await createRoomAPI(currentUserId)
-      console.log(roomInformation, 'roomInformation')
-    } catch (error) {
-      console.error(error)
-    }
-  }, [currentUserId]);
-
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/">
-          <Landing
-            onCreateRoom={createRoom}
+        <Route exact path="/" component={(props: RouteComponentProps) => <Landing
+            {...props}
             currentUserId={currentUserId}
           />
+        }>
         </Route>
-        <Route path="/rooms/:roomId" component={(props: RouteComponentProps<RoomParams>) => <Room
+        <Route exact path="/rooms/:roomId" component={(props: RouteComponentProps<RoomParams>) => <Room
             {...props}
             currentUserId={currentUserId}
             peerInstance={peerInstance.current}
