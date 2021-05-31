@@ -19,5 +19,5 @@ const executeCommand = (title, command) => {
     });
 }
 
-executeCommand('frontend server', "cd frontend && yarn start")
+executeCommand('frontend server', "HOST=0.0.0.0 cd frontend && yarn start")
 executeCommand('backend server', "cd backend && yarn dev")

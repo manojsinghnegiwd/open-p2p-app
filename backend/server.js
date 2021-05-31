@@ -15,7 +15,7 @@ app.get('/', (req, res, next) => res.send('Hello world!'));
 
 const server = http.createServer(app);
 
-server.listen(8000);
+server.listen(8000, '0.0.0.0');
 
 // will consist of all our participants
 const rooms = []
