@@ -1,0 +1,19 @@
+{
+  "name": "open-p2p-app",
+  "version": "1.0.0",
+  "description": "Open P2P application ====================",
+  "main": "index.js",
+  "scripts": {
+    "start-dev-server": "node ./scripts/start-server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manojsinghnegiwd/open-p2p-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/manojsinghnegiwd/open-p2p-app/issues"
+  },
+  "homepage": "https://github.com/manojsinghnegiwd/open-p2p-app#readme"
+}

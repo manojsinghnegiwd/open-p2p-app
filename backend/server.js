@@ -35,4 +35,11 @@ app.get('/rooms/:roomId', (req, res) => {
     res.json({ ...room })
 })
 
+app.post('/rooms/:roomId/join', (req, res) => {
+    const { params, body } = req;
+    const room = rooms.find(existingRooms => existingRooms.roomId === params.roomId);
+    room.addParticipant(body.participant);
+    res.json({ ...room })
+})
+
 startPeerServer();
