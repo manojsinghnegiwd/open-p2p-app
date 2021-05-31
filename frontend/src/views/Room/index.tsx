@@ -4,8 +4,6 @@ import { getUserMediaPromise } from '../../utils/media';
 import { RouteComponentProps } from 'react-router';
 import { fetchRoomAPI, joinRoomAPI } from '../../api/room';
 
-import PhonceCut from '../../assets/images/phone-slash-solid.svg';
-
 export interface RoomParams {
   roomId: string
 }
