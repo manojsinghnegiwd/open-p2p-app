@@ -26,8 +26,8 @@ Roadmap
 * ~Setting up the frontend with default PeerJS server.~
 * ~Ability to handle one to one calls~
 * ~Ability to create rooms~
-* Ability to turn off video/mic
-* Fix room layout
+* ~Ability to turn off video/mic~
+* ~Fix room layout~
 * Ability to handle room calls ( many to many )
 
 How to contribute
