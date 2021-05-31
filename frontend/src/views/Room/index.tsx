@@ -97,11 +97,22 @@ const Room: React.FC<RoomProps> = ({
 
   return (
     <div className="Room">
-      <div>
-        <video ref={currentUserVideoRef} muted />
-      </div>
-      <div>
-        <video ref={remoteUserVideoRef} />
+      <div className="container has-text-centered	">
+        <p className="mb-5 mt-5">
+          <strong>RoomId: {roomId}</strong>
+        </p>
+        <div className="columns">
+          <div className="column">
+            <div className="box">
+              <video ref={currentUserVideoRef} muted />
+            </div>
+          </div>
+          <div className="column">
+            <div className="box">
+              <video ref={remoteUserVideoRef} muted />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
