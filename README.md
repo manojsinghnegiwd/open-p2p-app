@@ -14,6 +14,12 @@ Backend
 
 * PeerJS-server is used for handling P2P communication in the backend.
 
+Starting the dev server
+=======================
+
+* yarn setup
+* yarn start-dev-server
+
 Roadmap
 =======
 

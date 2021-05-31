@@ -4,7 +4,8 @@
   "description": "Open P2P application ====================",
   "main": "index.js",
   "scripts": {
-    "start-dev-server": "node ./scripts/start-server.js"
+    "start-dev-server": "node ./scripts/start-server.js",
+    "setup": "./scripts/setup.sh"
   },
   "repository": {
     "type": "git",
