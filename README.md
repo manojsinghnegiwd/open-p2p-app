@@ -17,8 +17,8 @@ Backend
 Starting the dev server
 =======================
 
-* yarn setup
-* yarn start-dev-server
+* `yarn setup`
+* `yarn start-dev-server`
 
 Roadmap
 =======
