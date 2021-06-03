@@ -21,11 +21,11 @@ const Landing: React.FC<LandingProps> = ({ currentUserId, history }) => {
   return (
     <div className="container pt-5">
       <div className="columns">
-        <div className="column is-half is-offset-one-quarter">
-          <p className="mb-5">
-            <strong>Hey There !!! Your User ID is {currentUserId}</strong>
+        <div className="column is-half is-offset-one-quarter has-text-centered">
+          <p className="mb-5 is-size-1 has-text-centered">
+            <strong className="has-text-white">Open P2P App</strong>
           </p>
-          <button onClick={createRoom} className="button is-success is-fullwidth">Create a room</button>
+          <button onClick={createRoom} className="button is-success">Create a room</button>
         </div>
       </div>
     </div>
