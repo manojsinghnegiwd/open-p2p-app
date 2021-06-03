@@ -1,9 +1,18 @@
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
   font-family: 'Montserrat', sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #333;
+  height: 100%;
+  float: left;
+  width: 100%;
 }
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

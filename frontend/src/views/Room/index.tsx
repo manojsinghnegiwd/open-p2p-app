@@ -3,9 +3,16 @@ import Peer from 'peerjs';
 import { getUserMediaPromise } from '../../utils/media';
 import { RouteComponentProps } from 'react-router';
 import { fetchRoomAPI, joinRoomAPI } from '../../api/room';
+import RemoteUserVideo from '../../components/Room/RemoteUserVideo';
+import BottomControls from '../../components/Room/BottomControls';
 
 export interface RoomParams {
   roomId: string
+}
+
+interface Participant {
+  userId: string,
+  mediaStream: MediaStream | null
 }
 interface RoomProps extends RouteComponentProps<RoomParams> {
   peerInstance: Peer | null
@@ -20,20 +27,25 @@ const Room: React.FC<RoomProps> = ({
 }) => {
   const currentMediaStream = useRef<MediaStream | null>(null);
   const currentUserVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteUserVideoRef = useRef<HTMLVideoElement>(null);
+  const participantsRef = useRef<Participant[] | null>(null);
 
   const [muted, setMuted] = useState<boolean>(false);
   const [videoMuted, setVideoMuted] = useState<boolean>(false);
+  const [participants, setParticipants] = useState<Participant[]>([]);
 
   const { params } = match;
   const { roomId } = params;
+
+  useEffect(() => {
+    setCurrentUserVideo();
+  }, [])
 
   useEffect(() => {
     if (!peerInstance) {
       return;
     }
 
-    peerInstance.on('call', async (incomingCall: Peer.MediaConnection) => {
+    const incomingCallListener = async (incomingCall: Peer.MediaConnection) => {
       if (!currentMediaStream.current) {
         return;
       }
@@ -41,15 +53,19 @@ const Room: React.FC<RoomProps> = ({
       incomingCall.answer(currentMediaStream.current)
 
       incomingCall.on('stream', function(remoteStream) {
-        if (remoteUserVideoRef.current) {
-          remoteUserVideoRef.current.srcObject = remoteStream
-          remoteUserVideoRef.current.play();
+        const newParticipant: Participant = {
+          userId: incomingCall.peer,
+          mediaStream: remoteStream
         }
-      });
-    });
 
-    setCurrentUserVideo();
-  }, [peerInstance])
+        setParticipants(participants.concat(newParticipant));
+      });
+    }
+
+    peerInstance.on('call', incomingCallListener);
+
+    return () => peerInstance.off('call', incomingCallListener)
+  }, [peerInstance, participants])
 
   useEffect(() => {
     if (!currentMediaStream.current) {
@@ -96,34 +112,49 @@ const Room: React.FC<RoomProps> = ({
     }
   }, [roomId, currentUserId])
 
-  const callEveryoneInTheRoom = async (roomId: string) => {
+  const call = useCallback((userId): Promise<Participant | null> => {
+    if (!peerInstance || !currentMediaStream.current) {
+      return Promise.resolve(null);
+    }
+
+    const outgoingCall = peerInstance.call(userId, currentMediaStream.current)
+
+    return new Promise((resolve) => {
+      const streamListener = (remoteStream: MediaStream) => {
+        const newParticipant: Participant = {
+          userId,
+          mediaStream: remoteStream
+        }
+
+        outgoingCall.off('stream', streamListener);
+        resolve(newParticipant);
+      }
+
+      outgoingCall.on('stream', streamListener);
+    })
+}, [participants]);
+
+  const callEveryoneInTheRoom = useCallback(async (roomId: string) => {
     try {
       const roomInformation = await fetchRoomAPI(roomId)
 
       const { participants } = roomInformation;
 
       if (participants.length) {
-        participants.forEach((participant: string) => call(participant))
+        const participantCalls: Promise<Participant | null>[] = participants
+          .filter((participant: string) => participant !== currentUserId)
+          .map((participant: string) => call(participant))
+
+        Promise.all(participantCalls)
+          .then((values: (Participant | null)[]) => {
+            const validParticipants = values.filter(value => value) as Participant[]
+            setParticipants(validParticipants)
+          })
       }
     } catch (error) {
       console.error(error)
     }
-  }
-
-  const call = useCallback((remoteUserId) => {
-    if (!peerInstance || !currentMediaStream.current) {
-      return;
-    }
-
-    const outgoingCall = peerInstance.call(remoteUserId, currentMediaStream.current)
-
-    outgoingCall.on('stream', (remoteStream) => {
-      if (remoteUserVideoRef.current) {
-        remoteUserVideoRef.current.srcObject = remoteStream
-        remoteUserVideoRef.current.play();
-      }
-    });
-  }, []);
+  }, [currentUserId, call])
 
   return (
     <div className="Room">
@@ -133,37 +164,27 @@ const Room: React.FC<RoomProps> = ({
         </p>
         <div className="columns">
           <div className="column">
-            <div className="box">
-              <video ref={currentUserVideoRef} muted/>
-            </div>
+            <video ref={currentUserVideoRef} muted/>
           </div>
-          <div className="column">
-            <div className="box">
-              <video ref={remoteUserVideoRef} />
-            </div>
-          </div>
+          {
+            participants.map(
+              participant => (
+                <RemoteUserVideo
+                  key={participant.userId}
+                  remoteStream={participant.mediaStream}
+                />
+              )
+            )
+          }
         </div>
       </div>
-      <div className="has-text-centered mt-5">
-        <button className="button is-danger mr-2" onClick={() => history.push(`/`)}>
-          <span className="icon">
-            <i className="fas fa-phone-slash"/>
-          </span>
-          <span>Leave call</span>
-        </button>
-        <button className={`button is-${muted ? 'danger' : 'primary' } mr-2`} onClick={() => setMuted(!muted)}>
-          <span className="icon">
-            <i className={`fas ${muted ? 'fa-microphone-slash' : 'fa-microphone'}`}></i>
-          </span>
-          <span>{muted ? 'Unmute' : 'Mute'}</span>
-        </button>
-        <button className={`button is-${videoMuted ? 'danger' : 'primary' } mr-2`} onClick={() => setVideoMuted(!videoMuted)}>
-          <span className="icon">
-            <i className={`fas ${videoMuted ? 'fa-video-slash' : 'fa-video'}`}></i>
-          </span>
-          <span>{videoMuted ? 'Turn video on' : 'Turn video off'}</span>
-        </button>
-      </div>
+      <BottomControls
+        onLeave={() => history.push(`/`)}
+        toggleMute={() => setMuted(!muted)}
+        toggleVideoMute={() => setVideoMuted(!videoMuted)}
+        muted={muted}
+        videoMuted={videoMuted}
+      />
     </div>
   );
 }
