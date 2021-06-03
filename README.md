@@ -28,7 +28,7 @@ Roadmap
 * ~Ability to create rooms~
 * ~Ability to turn off video/mic~
 * ~Fix room layout~
-* Ability to handle room calls ( many to many )
+* ~Ability to handle room calls ( many to many )~
 
 How to contribute
 =================
