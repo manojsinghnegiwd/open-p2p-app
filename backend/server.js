@@ -4,6 +4,7 @@ const { json } = require('body-parser');
 const cors = require('cors');
 
 const { startPeerServer } = require('./peer/server');
+const { startSocketServer } = require('./socket/server');
 const Room = require('./Room/Room');
 
 const app = express();
@@ -43,3 +44,4 @@ app.post('/rooms/:roomId/join', (req, res) => {
 })
 
 startPeerServer();
+startSocketServer(server);

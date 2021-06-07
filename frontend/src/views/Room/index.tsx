@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import Peer from 'peerjs';
+import io, { Socket } from 'socket.io-client';
 import { getUserMediaPromise } from '../../utils/media';
 import { RouteComponentProps } from 'react-router';
 import { fetchRoomAPI, joinRoomAPI } from '../../api/room';
@@ -27,7 +28,7 @@ const Room: React.FC<RoomProps> = ({
 }) => {
   const currentMediaStream = useRef<MediaStream | null>(null);
   const currentUserVideoRef = useRef<HTMLVideoElement>(null);
-  const participantsRef = useRef<Participant[] | null>(null);
+  const socketInstance = useRef<Socket | null>(null);
 
   const [muted, setMuted] = useState<boolean>(false);
   const [videoMuted, setVideoMuted] = useState<boolean>(false);
@@ -38,7 +39,28 @@ const Room: React.FC<RoomProps> = ({
 
   useEffect(() => {
     setCurrentUserVideo();
-  }, [])
+    socketInstance.current = io("http://localhost:8000");
+
+    socketInstance.current.on('get:peerId', () => {
+      socketInstance?.current?.emit('send:peerId', currentUserId)
+    })
+  }, [currentUserId])
+
+  useEffect(() => {
+    const userLeftListener = (peerId: string) => {
+      const filteredParticipants = participants.filter(
+        participant => participant.userId !== peerId
+      )
+
+      setParticipants(filteredParticipants)
+    }
+
+    socketInstance?.current?.on('user:left', userLeftListener)
+
+    return () => {
+      socketInstance?.current?.off('user:left', userLeftListener)
+    }
+  }, [participants])
 
   useEffect(() => {
     if (!peerInstance) {
@@ -179,7 +201,10 @@ const Room: React.FC<RoomProps> = ({
         </div>
       </div>
       <BottomControls
-        onLeave={() => history.push(`/`)}
+        onLeave={() => {
+          socketInstance?.current?.disconnect()
+          history.push(`/`)
+        }}
         toggleMute={() => setMuted(!muted)}
         toggleVideoMute={() => setVideoMuted(!videoMuted)}
         muted={muted}
