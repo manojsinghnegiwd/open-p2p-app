@@ -26,6 +26,9 @@ const Landing: React.FC<LandingProps> = ({ currentUserId, history }) => {
             <strong className="has-text-white">Open P2P App</strong>
           </p>
           <button onClick={createRoom} className="button is-success">Create a room</button>
+          <p className="mt-5 is-size-5 has-text-centered">
+            <strong className="has-text-white">Built with <i style={{ color: 'red' }} className="fas fa-heart"></i> by <a href="https://github.com/manojsinghnegiwd">Manoj Singh Negi</a></strong>
+          </p>
         </div>
       </div>
     </div>

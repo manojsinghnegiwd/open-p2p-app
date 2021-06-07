@@ -1,0 +1,41 @@
+stages:
+    - publish
+    - deploy
+variables:
+    TAG_LATEST: $REGISTRY/openp2p/$CI_COMMIT_REF_NAME:latest
+    TAG_COMMIT: $REGISTRY/openp2p/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+publish:
+    image: docker:latest
+    stage: publish
+    services:
+        - docker:dind
+    script:
+        - cd frontend
+        - docker build -t "$TAG_COMMIT-frontend" -t "$TAG_LATEST-frontend" .
+        - docker login -u $DOCKER_USER -p $DOCKER_PS $REGISTRY
+        - docker push "$TAG_COMMIT-frontend"
+        - docker push "$TAG_LATEST-frontend"
+        - docker build -t "$TAG_COMMIT-backend" -t "$TAG_LATEST-backend" .
+        - docker login -u $DOCKER_USER -p $DOCKER_PS $REGISTRY
+        - docker push "$TAG_COMMIT-backend"
+        - docker push "$TAG_LATEST-backend"
+    only:
+        - master
+deploy:
+    image: alpine:latest
+    stage: deploy
+    tags:
+        - deployment
+    script:
+        - chmod og= $ID_RSA
+        - apk update && apk add openssh-client
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_USER -p $DOCKER_PS $REGISTRY"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull '$TAG_COMMIT-frontend'"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f openp2pfrontend || true"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 3010:80 --name openp2pfrontend '$TAG_COMMIT-frontend'"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_USER -p $DOCKER_PS $REGISTRY"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull '$TAG_COMMIT-backend'"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f openp2pbackend || true"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8000:8000 -p 9000:9000 --name openp2pbackend '$TAG_COMMIT-backend'"
+    only:
+        - master
