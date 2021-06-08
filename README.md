@@ -29,6 +29,7 @@ Roadmap
 * ~Ability to turn off video/mic~
 * ~Fix room layout~
 * ~Ability to handle room calls ( many to many )~
+* Screen Sharing
 
 How to contribute
 =================
