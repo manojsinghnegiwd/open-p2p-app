@@ -20,7 +20,7 @@ publish:
         - docker push "$TAG_COMMIT-backend"
         - docker push "$TAG_LATEST-backend"
     only:
-        - master
+        - main
 deploy:
     image: alpine:latest
     stage: deploy
@@ -38,4 +38,4 @@ deploy:
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f openp2pbackend || true"
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8000:8000 -p 9000:9000 --name openp2pbackend '$TAG_COMMIT-backend'"
     only:
-        - master
+        - main
