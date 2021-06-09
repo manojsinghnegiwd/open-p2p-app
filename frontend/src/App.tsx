@@ -25,8 +25,8 @@ function App() {
 
     // save peer instance into ref
     peerInstance.current = new PeerJS(userId, {
-      host: 'localhost',
-      port: 9000,
+      host: (process.env as any).REACT_APP_BACKEND_PEER_HOST,
+      port: (process.env as any).REACT_APP_BACKEND_PEER_PORT,
       path: '/',
       secure: false
     });
