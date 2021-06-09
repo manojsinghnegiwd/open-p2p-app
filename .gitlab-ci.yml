@@ -15,6 +15,7 @@ publish:
         - docker login -u $DOCKER_USER -p $DOCKER_PS $REGISTRY
         - docker push "$TAG_COMMIT-frontend"
         - docker push "$TAG_LATEST-frontend"
+        - cd ../backend
         - docker build -t "$TAG_COMMIT-backend" -t "$TAG_LATEST-backend" .
         - docker login -u $DOCKER_USER -p $DOCKER_PS $REGISTRY
         - docker push "$TAG_COMMIT-backend"
