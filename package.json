@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start-dev-server": "node ./scripts/start-server.js",
+    "deploy": "./scripts/deploy.sh",
     "setup": "./scripts/setup.sh"
   },
   "repository": {

@@ -36,6 +36,6 @@ deploy:
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_USER -p $DOCKER_PS $REGISTRY"
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull '$TAG_COMMIT-backend'"
         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f openp2pbackend || true"
-        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8000:8000 -p 9000:9000 --name openp2pbackend '$TAG_COMMIT-backend'"
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 8001:8001 -p 9000:9000 --name openp2pbackend '$TAG_COMMIT-backend'"
     only:
         - main

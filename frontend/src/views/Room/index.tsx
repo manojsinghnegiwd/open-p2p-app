@@ -39,7 +39,7 @@ const Room: React.FC<RoomProps> = ({
 
   useEffect(() => {
     setCurrentUserVideo();
-    socketInstance.current = io("http://localhost:8000");
+    socketInstance.current = io("http://localhost:8001");
 
     socketInstance.current.on('get:peerId', () => {
       socketInstance?.current?.emit('send:peerId', currentUserId)
