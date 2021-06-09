@@ -28,7 +28,7 @@ function App() {
       host: (process.env as any).REACT_APP_BACKEND_PEER_HOST,
       port: (process.env as any).REACT_APP_BACKEND_PEER_PORT,
       path: '/',
-      secure: false
+      secure: (process.env as any).NODE_ENV === 'production',
     });
 
     peerInstance.current.on('open', (id) => {
