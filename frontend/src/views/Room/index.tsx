@@ -120,6 +120,10 @@ const Room: React.FC<RoomProps> = ({
       return;
     }
 
+    if (!currentUserId) {
+      return;
+    }
+
     try {
       const mediaStream = await getUserMediaPromise({ video: true, audio: true });
       currentUserVideoRef.current.srcObject = mediaStream;
