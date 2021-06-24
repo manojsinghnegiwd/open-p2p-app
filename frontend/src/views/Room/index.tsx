@@ -37,6 +37,74 @@ const Room: React.FC<RoomProps> = ({
   const { params } = match;
   const { roomId } = params;
 
+  const call = useCallback((userId): Promise<Participant | null> => {
+    if (!peerInstance || !currentMediaStream.current) {
+      return Promise.resolve(null);
+    }
+
+    const outgoingCall = peerInstance.call(userId, currentMediaStream.current)
+
+    return new Promise((resolve) => {
+      const streamListener = (remoteStream: MediaStream) => {
+        const newParticipant: Participant = {
+          userId,
+          mediaStream: remoteStream
+        }
+
+        outgoingCall.off('stream', streamListener);
+        resolve(newParticipant);
+      }
+
+      outgoingCall.on('stream', streamListener);
+    })
+}, [peerInstance]);
+
+  const callEveryoneInTheRoom = useCallback(async (roomId: string) => {
+    try {
+      const roomInformation = await fetchRoomAPI(roomId)
+
+      const { participants } = roomInformation;
+
+      if (participants.length) {
+        const participantCalls: Promise<Participant | null>[] = participants
+          .filter((participant: string) => participant !== currentUserId)
+          .map((participant: string) => call(participant))
+
+        Promise.all(participantCalls)
+          .then((values: (Participant | null)[]) => {
+            const validParticipants = values.filter(value => value) as Participant[]
+            setParticipants(validParticipants)
+          })
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }, [currentUserId, call])
+
+
+  const setCurrentUserVideo = useCallback(async () => {
+    if (!currentUserVideoRef.current) {
+      return;
+    }
+
+    if (!currentUserId) {
+      return;
+    }
+
+    try {
+      const mediaStream = await getUserMediaPromise({ video: true, audio: true });
+      currentUserVideoRef.current.srcObject = mediaStream;
+      currentUserVideoRef.current.play();
+
+      currentMediaStream.current = mediaStream;
+
+      await joinRoomAPI(roomId, currentUserId)
+      await callEveryoneInTheRoom(roomId)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [roomId, currentUserId, callEveryoneInTheRoom])
+
   useEffect(() => {
     setCurrentUserVideo();
     socketInstance.current = io((process.env as any).REACT_APP_BACKEND_EXPRESS_HOST);
@@ -44,7 +112,7 @@ const Room: React.FC<RoomProps> = ({
     socketInstance.current.on('get:peerId', () => {
       socketInstance?.current?.emit('send:peerId', currentUserId)
     })
-  }, [currentUserId])
+  }, [currentUserId, setCurrentUserVideo])
 
   useEffect(() => {
     const userLeftListener = (peerId: string) => {
@@ -114,73 +182,6 @@ const Room: React.FC<RoomProps> = ({
     }
 
   }, [muted])
-
-  const setCurrentUserVideo = useCallback(async () => {
-    if (!currentUserVideoRef.current) {
-      return;
-    }
-
-    if (!currentUserId) {
-      return;
-    }
-
-    try {
-      const mediaStream = await getUserMediaPromise({ video: true, audio: true });
-      currentUserVideoRef.current.srcObject = mediaStream;
-      currentUserVideoRef.current.play();
-
-      currentMediaStream.current = mediaStream;
-
-      await joinRoomAPI(roomId, currentUserId)
-      await callEveryoneInTheRoom(roomId)
-    } catch (error) {
-      console.error(error)
-    }
-  }, [roomId, currentUserId])
-
-  const call = useCallback((userId): Promise<Participant | null> => {
-    if (!peerInstance || !currentMediaStream.current) {
-      return Promise.resolve(null);
-    }
-
-    const outgoingCall = peerInstance.call(userId, currentMediaStream.current)
-
-    return new Promise((resolve) => {
-      const streamListener = (remoteStream: MediaStream) => {
-        const newParticipant: Participant = {
-          userId,
-          mediaStream: remoteStream
-        }
-
-        outgoingCall.off('stream', streamListener);
-        resolve(newParticipant);
-      }
-
-      outgoingCall.on('stream', streamListener);
-    })
-}, [participants]);
-
-  const callEveryoneInTheRoom = useCallback(async (roomId: string) => {
-    try {
-      const roomInformation = await fetchRoomAPI(roomId)
-
-      const { participants } = roomInformation;
-
-      if (participants.length) {
-        const participantCalls: Promise<Participant | null>[] = participants
-          .filter((participant: string) => participant !== currentUserId)
-          .map((participant: string) => call(participant))
-
-        Promise.all(participantCalls)
-          .then((values: (Participant | null)[]) => {
-            const validParticipants = values.filter(value => value) as Participant[]
-            setParticipants(validParticipants)
-          })
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }, [currentUserId, call])
 
   return (
     <div className="Room">

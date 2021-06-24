@@ -1,5 +1,4 @@
-import Peer from 'peerjs';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface RemoteUserVideoProps {
     remoteStream: MediaStream | null

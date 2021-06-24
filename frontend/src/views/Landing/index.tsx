@@ -1,4 +1,3 @@
-import Peer from "peerjs";
 import React, { useCallback } from "react";
 import { RouteComponentProps } from "react-router";
 import { createRoomAPI } from "../../api/room";
@@ -16,7 +15,7 @@ const Landing: React.FC<LandingProps> = ({ currentUserId, history }) => {
     } catch (error) {
       console.error(error)
     }
-  }, [currentUserId]);
+  }, [currentUserId, history]);
 
   return (
     <div className="container pt-5">

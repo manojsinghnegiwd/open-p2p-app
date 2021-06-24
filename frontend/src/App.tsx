@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PeerJS from 'peerjs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -11,9 +11,6 @@ import {
 // views
 import Landing from './views/Landing';
 import Room, { RoomParams } from './views/Room';
-
-// api
-import { createRoomAPI } from './api/room';
 
 function App() {
   const peerInstance = useRef<PeerJS | null>(null);

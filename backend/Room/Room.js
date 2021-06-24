@@ -23,6 +23,12 @@ class Room {
             this.participants.splice(index, 1)
         }
     }
+
+    getInfo = () => ({
+        participants: this.participants,
+        roomId: this.roomId,
+        author: this.author
+    })
 }
 
 module.exports = Room

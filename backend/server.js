@@ -38,10 +38,18 @@ app.get('/rooms/:roomId', (req, res) => {
 
 app.post('/rooms/:roomId/join', (req, res) => {
     const { params, body } = req;
-    const room = rooms.find(existingRooms => existingRooms.roomId === params.roomId);
-    room.addParticipant(body.participant);
-    res.json({ ...room })
+    const roomIndex = rooms.findIndex(existingRooms => existingRooms.roomId === params.roomId);
+    
+    let room = null;
+
+    if (roomIndex > -1) {
+        room = rooms[roomIndex]
+        room.addParticipant(body.participant);
+        rooms[roomIndex] = room
+    }
+
+    res.json({ ...room.getInfo() })
 })
 
 startPeerServer();
-startSocketServer(server);
+startSocketServer(server, rooms);
