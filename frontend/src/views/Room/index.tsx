@@ -6,6 +6,7 @@ import { RouteComponentProps } from 'react-router';
 import { fetchRoomAPI, joinRoomAPI } from '../../api/room';
 import RemoteUserVideo from '../../components/Room/RemoteUserVideo';
 import BottomControls from '../../components/Room/BottomControls';
+import Modal from '../../components/Modal/Modal';
 
 export interface RoomParams {
   roomId: string
@@ -33,6 +34,7 @@ const Room: React.FC<RoomProps> = ({
   const [muted, setMuted] = useState<boolean>(false);
   const [videoMuted, setVideoMuted] = useState<boolean>(false);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [name, setName] = useState<string>("");
 
   const { params } = match;
   const { roomId } = params;
@@ -185,12 +187,24 @@ const Room: React.FC<RoomProps> = ({
 
   return (
     <div className="Room">
-      <div className="container has-text-centered	">
+      <Modal
+        open={true}
+        onClose={() => {}}
+      >
+        <p className="mb-2">Please enter your name</p>
+        <div className="field">
+          <div className="control">
+            <input className="input" type="name" placeholder="Your Name" />
+          </div>
+        </div>
+        <button className="button is-primary">Join</button>
+      </Modal>
+      <div className="container has-text-centered">
         <p className="mb-5 mt-5">
           <strong>RoomId: {roomId}</strong>
         </p>
-        <div className="columns">
-          <div className="column">
+        <div className="columns is-multiline is-centered">
+          <div className="column is-narrow">
             <video ref={currentUserVideoRef} muted/>
           </div>
           {

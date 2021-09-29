@@ -23,8 +23,8 @@ const RemoteUserVideo: React.FC<RemoteUserVideoProps> = ({
     }, [remoteStream])
 
     return (
-        <div className="column">
-            <video width={640} height={480} ref={userVideoRef} />
+        <div className="column is-narrow">
+            <video ref={userVideoRef} />
         </div>
     )
 }

@@ -1,6 +1,6 @@
 interface NavigatorExtended extends Navigator {
-    webkitGetUserMedia: (constraints: MediaStreamConstraints, successCallback: NavigatorUserMediaSuccessCallback, errorCallback: NavigatorUserMediaErrorCallback) => void
-    mozGetUserMedia: (constraints: MediaStreamConstraints, successCallback: NavigatorUserMediaSuccessCallback, errorCallback: NavigatorUserMediaErrorCallback) => void
+    webkitGetUserMedia: (constraints: MediaStreamConstraints, successCallback: any, errorCallback: any) => void
+    mozGetUserMedia: (constraints: MediaStreamConstraints, successCallback: any, errorCallback: any) => void
 }
 
 export const getUserMediaPromise = (
@@ -9,7 +9,7 @@ export const getUserMediaPromise = (
     const navigatorExtended: NavigatorExtended = navigator as NavigatorExtended;
 
     const getUserMedia = 
-        navigatorExtended.getUserMedia
+        (navigatorExtended as any).getUserMedia
         || navigatorExtended.webkitGetUserMedia
         || navigatorExtended.mozGetUserMedia;
 
